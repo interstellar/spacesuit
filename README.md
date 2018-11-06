@@ -1,10 +1,9 @@
 # Spacesuit: Interstellar's implementation of cloaked transactions
 
-This library provides a pure-Rust implementation of [Cloak][cloak], a confidential assets
-protocol based on the [Bulletproofs][bp_website] zero-knowledge circuit proof system.
+This library provides a pure-Rust implementation of [Cloak][cloak], a confidential assets protocol.
 
 The implementation of the Cloak protocol for [Interstellar][interstellar] is called [Spacesuit][spacesuit_crate].
-It uses [this implementation][bp_repo] of Bulletproofs circuit proofs in Rust.
+It uses the [Bulletproofs][bp_website] zero-knowledge circuit proof system to create proofs, as implemented in Rust in [this library][bp_repo].
 
 ## Documentation
 
