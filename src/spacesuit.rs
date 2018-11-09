@@ -8,7 +8,7 @@ use error::SpacesuitError;
 use gadgets::transaction;
 use merlin::Transcript;
 use std::cmp::max;
-use subtle::{ConditionallyAssignable, ConstantTimeEq};
+use subtle::{ConditionallySelectable, ConstantTimeEq};
 use value::Value;
 
 pub struct SpacesuitProof(R1CSProof);
