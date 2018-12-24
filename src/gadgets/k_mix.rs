@@ -30,6 +30,7 @@ pub fn fill_cs<CS: ConstraintSystem>(
     Ok((mix_in, mix_out))
 }
 
+// This is a separate function so we can test it on generated intermediate values
 fn call_mix_gadget<CS: ConstraintSystem>(
     cs: &mut CS,
     mix_in: &Vec<AllocatedValue>,

@@ -25,6 +25,10 @@ pub fn fill_cs<CS: ConstraintSystem>(
         return Ok(());
     }
 
+    println!("specifying constraints for value shuffle");
+    println!("x: {:?}", x);
+    println!("y: {:?}", y);
+
     cs.specify_randomized_constraints(move |cs| {
         let w = cs.challenge_scalar(b"k-value shuffle challenge");
         let w2 = w * w;
@@ -74,6 +78,9 @@ mod tests {
             t: 555u64.into(),
         }
     }
+    fn zero() -> Value {
+        Value::zero()
+    }
     fn wrong() -> Value {
         Value {
             q: 9991u64,
@@ -89,6 +96,7 @@ mod tests {
         assert!(value_shuffle_helper(vec![yuan(4)], vec![yuan(4)]).is_ok());
         assert!(value_shuffle_helper(vec![peso(1)], vec![yuan(4)]).is_err());
         // k=2
+        assert!(value_shuffle_helper(vec![zero(), zero()], vec![zero(), zero()]).is_ok());
         assert!(value_shuffle_helper(vec![peso(1), yuan(4)], vec![peso(1), yuan(4)]).is_ok());
         assert!(value_shuffle_helper(vec![peso(1), yuan(4)], vec![yuan(4), peso(1)]).is_ok());
         assert!(value_shuffle_helper(vec![yuan(4), yuan(4)], vec![yuan(4), yuan(4)]).is_ok());
@@ -99,6 +107,13 @@ mod tests {
             value_shuffle_helper(
                 vec![peso(1), yuan(4), euro(8)],
                 vec![peso(1), yuan(4), euro(8)]
+            )
+            .is_ok()
+        );
+        assert!(
+            value_shuffle_helper(
+                vec![peso(1), zero(), euro(8)],
+                vec![peso(1), euro(8), zero()]
             )
             .is_ok()
         );
@@ -155,21 +170,6 @@ mod tests {
             value_shuffle_helper(
                 vec![peso(1), yuan(4), euro(8)],
                 vec![peso(1), yuan(4), wrong()]
-            )
-            .is_err()
-        );
-        assert!(
-            value_shuffle_helper(
-                vec![Value {
-                    q: 0,
-                    a: 0u64.into(),
-                    t: 0u64.into(),
-                }],
-                vec![Value {
-                    q: 0,
-                    a: 0u64.into(),
-                    t: 1u64.into(),
-                }]
             )
             .is_err()
         );

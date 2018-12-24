@@ -49,10 +49,14 @@ mod tests {
         let mut rng = OsRng::new().unwrap();
         let m = 3; // number of values to test per `n`
 
+        // tests fail for non-power-of-2 n values... why?
+        // and pass for all power-of-2 n values tried so far.
         for n in [2, 10, 32, 63].iter() {
+            println!("n: {:?}", n);
             let (min, max) = (0u64, ((1u128 << n) - 1) as u64);
             let values: Vec<u64> = (0..m).map(|_| rng.gen_range(min, max)).collect();
             for v in values {
+                println!("value: {:?}", v);
                 assert!(range_proof_helper(v, *n).is_ok());
             }
             assert!(range_proof_helper(max + 1, *n).is_err());
@@ -78,9 +82,8 @@ mod tests {
                 assignment: Some(v_val),
             };
             assert!(fill_cs(&mut prover, quantity, n).is_ok());
-
+            
             let proof = prover.prove()?;
-
             (proof, com)
         };
 
