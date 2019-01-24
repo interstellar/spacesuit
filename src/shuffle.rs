@@ -1,5 +1,5 @@
 use bulletproofs::r1cs::{ConstraintSystem, R1CSError, RandomizedConstraintSystem, Variable};
-use std::cmp::{max, min};
+use core::cmp::{max, min};
 use value::{AllocatedValue, Value};
 
 /// Enforces that the output variables `y` are a valid reordering of the inputs variables `x`.
