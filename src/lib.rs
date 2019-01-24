@@ -13,7 +13,7 @@ mod value;
 
 pub use cloak::cloak;
 pub use range_proof::range_proof;
-pub use value::{Value, CommittedValue, AllocatedQuantity, AllocatedValue};
+pub use value::{AllocatedQuantity, AllocatedValue, CommittedValue, Value};
 
 // TBD: figure out if we need to export these at all
 pub use value::{ProverCommittable, VerifierCommittable};
