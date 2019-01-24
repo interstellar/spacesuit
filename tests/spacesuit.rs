@@ -1,12 +1,12 @@
-extern crate rand;
-extern crate merlin;
 extern crate bulletproofs;
+extern crate merlin;
+extern crate rand;
 extern crate spacesuit;
 
-use rand::{CryptoRng, Rng};
 use bulletproofs::r1cs::{Prover, R1CSError, R1CSProof, Verifier};
 use bulletproofs::{BulletproofGens, PedersenGens};
 use merlin::Transcript;
+use rand::{CryptoRng, Rng};
 
 use spacesuit::{cloak, CommittedValue, ProverCommittable, Value, VerifierCommittable};
 

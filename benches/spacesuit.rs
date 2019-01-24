@@ -15,8 +15,8 @@ extern crate spacesuit;
 use spacesuit::{cloak, CommittedValue, ProverCommittable, Value, VerifierCommittable};
 
 extern crate bulletproofs;
-use bulletproofs::{BulletproofGens, PedersenGens};
 use bulletproofs::r1cs::{Prover, R1CSError, R1CSProof, Verifier};
+use bulletproofs::{BulletproofGens, PedersenGens};
 
 fn prove<R: Rng + CryptoRng>(
     bp_gens: &BulletproofGens,
