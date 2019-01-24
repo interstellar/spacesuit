@@ -9,7 +9,7 @@ extern crate curve25519_dalek;
 use curve25519_dalek::scalar::Scalar;
 
 extern crate rand;
-use rand::{CryptoRng, Rng, thread_rng};
+use rand::{thread_rng, CryptoRng, Rng};
 
 extern crate spacesuit;
 use spacesuit::{cloak, CommittedValue, ProverCommittable, Value, VerifierCommittable};
@@ -154,7 +154,7 @@ fn verify_spacesuit_proof_n_64(c: &mut Criterion) {
     verify_spacesuit_proof_helper(64, c);
 }
 
-criterion_group!{
+criterion_group! {
     name = create_spacesuit_proof;
     config = Criterion::default().sample_size(10);
     targets = create_spacesuit_proof_n_2,
@@ -164,7 +164,7 @@ criterion_group!{
         create_spacesuit_proof_n_64,
 }
 
-criterion_group!{
+criterion_group! {
     name = verify_spacesuit_proof;
     config = Criterion::default().sample_size(10);
     targets = verify_spacesuit_proof_n_2,

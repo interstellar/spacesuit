@@ -244,69 +244,51 @@ mod tests {
         assert!(value_shuffle_helper(vec![peso(1), peso(1)], vec![yuan(4), peso(1)]).is_err());
         assert!(value_shuffle_helper(vec![peso(1), yuan(4)], vec![peso(1), yuan(4)]).is_ok());
         // k=3
-        assert!(
-            value_shuffle_helper(
-                vec![peso(1), yuan(4), euro(8)],
-                vec![peso(1), yuan(4), euro(8)]
-            )
-            .is_ok()
-        );
-        assert!(
-            value_shuffle_helper(
-                vec![peso(1), yuan(4), euro(8)],
-                vec![peso(1), euro(8), yuan(4)]
-            )
-            .is_ok()
-        );
-        assert!(
-            value_shuffle_helper(
-                vec![peso(1), yuan(4), euro(8)],
-                vec![yuan(4), peso(1), euro(8)]
-            )
-            .is_ok()
-        );
-        assert!(
-            value_shuffle_helper(
-                vec![peso(1), yuan(4), euro(8)],
-                vec![yuan(4), euro(8), peso(1)]
-            )
-            .is_ok()
-        );
-        assert!(
-            value_shuffle_helper(
-                vec![peso(1), yuan(4), euro(8)],
-                vec![euro(8), peso(1), yuan(4)]
-            )
-            .is_ok()
-        );
-        assert!(
-            value_shuffle_helper(
-                vec![peso(1), yuan(4), euro(8)],
-                vec![euro(8), yuan(4), peso(1)]
-            )
-            .is_ok()
-        );
-        assert!(
-            value_shuffle_helper(
-                vec![peso(1), yuan(4), euro(8)],
-                vec![wrong(), yuan(4), euro(8)]
-            )
-            .is_err()
-        );
-        assert!(
-            value_shuffle_helper(
-                vec![peso(1), yuan(4), euro(8)],
-                vec![peso(1), wrong(), euro(8)]
-            )
-            .is_err()
-        );
-        assert!(
-            value_shuffle_helper(
-                vec![peso(1), yuan(4), euro(8)],
-                vec![peso(1), yuan(4), wrong()]
-            )
-            .is_err()
-        );
+        assert!(value_shuffle_helper(
+            vec![peso(1), yuan(4), euro(8)],
+            vec![peso(1), yuan(4), euro(8)]
+        )
+        .is_ok());
+        assert!(value_shuffle_helper(
+            vec![peso(1), yuan(4), euro(8)],
+            vec![peso(1), euro(8), yuan(4)]
+        )
+        .is_ok());
+        assert!(value_shuffle_helper(
+            vec![peso(1), yuan(4), euro(8)],
+            vec![yuan(4), peso(1), euro(8)]
+        )
+        .is_ok());
+        assert!(value_shuffle_helper(
+            vec![peso(1), yuan(4), euro(8)],
+            vec![yuan(4), euro(8), peso(1)]
+        )
+        .is_ok());
+        assert!(value_shuffle_helper(
+            vec![peso(1), yuan(4), euro(8)],
+            vec![euro(8), peso(1), yuan(4)]
+        )
+        .is_ok());
+        assert!(value_shuffle_helper(
+            vec![peso(1), yuan(4), euro(8)],
+            vec![euro(8), yuan(4), peso(1)]
+        )
+        .is_ok());
+        assert!(value_shuffle_helper(
+            vec![peso(1), yuan(4), euro(8)],
+            vec![wrong(), yuan(4), euro(8)]
+        )
+        .is_err());
+        assert!(value_shuffle_helper(
+            vec![peso(1), yuan(4), euro(8)],
+            vec![peso(1), wrong(), euro(8)]
+        )
+        .is_err());
+        assert!(value_shuffle_helper(
+            vec![peso(1), yuan(4), euro(8)],
+            vec![peso(1), yuan(4), wrong()]
+        )
+        .is_err());
     }
 
     fn value_shuffle_helper(input: Vec<Value>, output: Vec<Value>) -> Result<(), R1CSError> {
@@ -349,60 +331,48 @@ mod tests {
         assert!(
             padded_shuffle_helper(vec![peso(1), zero(), yuan(4)], vec![peso(1), yuan(4)]).is_ok()
         );
-        assert!(
-            padded_shuffle_helper(
-                vec![peso(1), yuan(4)],
-                vec![zero(), yuan(4), zero(), peso(1)]
-            )
-            .is_ok()
-        );
-        assert!(
-            padded_shuffle_helper(
-                vec![yuan(4), zero(), zero(), yuan(4)],
-                vec![zero(), yuan(4), yuan(4)]
-            )
-            .is_ok()
-        );
+        assert!(padded_shuffle_helper(
+            vec![peso(1), yuan(4)],
+            vec![zero(), yuan(4), zero(), peso(1)]
+        )
+        .is_ok());
+        assert!(padded_shuffle_helper(
+            vec![yuan(4), zero(), zero(), yuan(4)],
+            vec![zero(), yuan(4), yuan(4)]
+        )
+        .is_ok());
 
         // k=3, with interspersed empty values
-        assert!(
-            padded_shuffle_helper(
-                vec![yuan(1), yuan(4), zero(), peso(8)],
-                vec![yuan(1), yuan(4), peso(8)]
-            )
-            .is_ok()
-        );
-        assert!(
-            padded_shuffle_helper(
-                vec![yuan(1), yuan(4), peso(8)],
-                vec![yuan(1), zero(), peso(8), zero(), yuan(4)]
-            )
-            .is_ok()
-        );
-        assert!(
-            padded_shuffle_helper(
-                vec![yuan(1), yuan(4), zero(), peso(8)],
-                vec![zero(), zero(), yuan(4), yuan(1), peso(8)]
-            )
-            .is_ok()
-        );
+        assert!(padded_shuffle_helper(
+            vec![yuan(1), yuan(4), zero(), peso(8)],
+            vec![yuan(1), yuan(4), peso(8)]
+        )
+        .is_ok());
+        assert!(padded_shuffle_helper(
+            vec![yuan(1), yuan(4), peso(8)],
+            vec![yuan(1), zero(), peso(8), zero(), yuan(4)]
+        )
+        .is_ok());
+        assert!(padded_shuffle_helper(
+            vec![yuan(1), yuan(4), zero(), peso(8)],
+            vec![zero(), zero(), yuan(4), yuan(1), peso(8)]
+        )
+        .is_ok());
         assert!(padded_shuffle_helper(vec![peso(1), yuan(4)], vec![yuan(4), peso(2)]).is_err());
-        assert!(
-            padded_shuffle_helper(
-                vec![yuan(1), yuan(4), peso(8)],
-                vec![
-                    zero(),
-                    Value {
-                        q: 1,
-                        f: 0u64.into(),
-                    },
-                    yuan(4),
-                    yuan(1),
-                    peso(8)
-                ]
-            )
-            .is_err()
-        );
+        assert!(padded_shuffle_helper(
+            vec![yuan(1), yuan(4), peso(8)],
+            vec![
+                zero(),
+                Value {
+                    q: 1,
+                    f: 0u64.into(),
+                },
+                yuan(4),
+                yuan(1),
+                peso(8)
+            ]
+        )
+        .is_err());
     }
 
     fn padded_shuffle_helper(input: Vec<Value>, output: Vec<Value>) -> Result<(), R1CSError> {

@@ -1,5 +1,5 @@
-use bulletproofs::r1cs::{ConstraintSystem, R1CSError};
 use crate::{mix::k_mix, range_proof};
+use bulletproofs::r1cs::{ConstraintSystem, R1CSError};
 use shuffle::{padded_shuffle, value_shuffle};
 use value::AllocatedValue;
 
