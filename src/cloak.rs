@@ -1,11 +1,11 @@
 use bulletproofs::r1cs::{ConstraintSystem, R1CSError};
-use gadgets::{merge, padded_shuffle, range_proof, split, value_shuffle};
+use crate::{merge, padded_shuffle, range_proof, split, value_shuffle};
 use value::AllocatedValue;
 
 /// Enforces that the outputs are a valid rearrangement of the inputs, following the
 /// soundness and secrecy requirements in the spacesuit transaction spec:
 /// https://github.com/interstellar/spacesuit/blob/master/spec.md
-pub fn fill_cs<CS: ConstraintSystem>(
+pub fn cloak<CS: ConstraintSystem>(
     cs: &mut CS,
     inputs: Vec<AllocatedValue>,
     outputs: Vec<AllocatedValue>,
@@ -34,7 +34,7 @@ pub fn fill_cs<CS: ConstraintSystem>(
     // Range Proof
     // Check that each of the quantities in `outputs` lies in [0, 2^64).
     for output in outputs {
-        range_proof::fill_cs(cs, output.quantity(), 64)?;
+        range_proof(cs, output.quantity(), 64)?;
     }
 
     Ok(())
