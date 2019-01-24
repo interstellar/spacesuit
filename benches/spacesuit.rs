@@ -9,7 +9,7 @@ extern crate curve25519_dalek;
 use curve25519_dalek::scalar::Scalar;
 
 extern crate rand;
-use rand::{CryptoRng, Rng};
+use rand::{CryptoRng, Rng, thread_rng};
 
 extern crate spacesuit;
 use spacesuit::{cloak, CommittedValue, ProverCommittable, Value, VerifierCommittable};
@@ -67,7 +67,7 @@ fn create_spacesuit_proof_helper(n: usize, c: &mut Criterion) {
         let bp_gens = BulletproofGens::new(10000, 1);
         let pc_gens = PedersenGens::default();
 
-        let mut rng = rand::thread_rng();
+        let mut rng = thread_rng();
         let (min, max) = (0u64, std::u64::MAX);
         let inputs: Vec<Value> = (0..n)
             .map(|_| Value {
@@ -76,7 +76,7 @@ fn create_spacesuit_proof_helper(n: usize, c: &mut Criterion) {
             })
             .collect();
         let mut outputs = inputs.clone();
-        let mut rng: rand::ThreadRng = rand::thread_rng();
+        let mut rng = thread_rng();
         rng.shuffle(&mut outputs);
 
         // Make spacesuit proof
@@ -114,7 +114,7 @@ fn verify_spacesuit_proof_helper(n: usize, c: &mut Criterion) {
         let bp_gens = BulletproofGens::new(10000, 1);
         let pc_gens = PedersenGens::default();
 
-        let mut rng = rand::thread_rng();
+        let mut rng = thread_rng();
         let (min, max) = (0u64, std::u64::MAX);
         let inputs: Vec<Value> = (0..n)
             .map(|_| Value {
@@ -123,8 +123,8 @@ fn verify_spacesuit_proof_helper(n: usize, c: &mut Criterion) {
             })
             .collect();
         let mut outputs = inputs.clone();
-        rand::thread_rng().shuffle(&mut outputs);
-        let mut rng: rand::ThreadRng = rand::thread_rng();
+        thread_rng().shuffle(&mut outputs);
+        let mut rng = thread_rng();
         let (proof, tx_in_com, tx_out_com) =
             prove(&bp_gens, &pc_gens, &inputs, &outputs, &mut rng).unwrap();
 
