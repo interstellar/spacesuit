@@ -14,7 +14,7 @@ use value::{AllocatedValue, Value};
 /// * a vector of `k` sorted `AllocatedValue`s that are the inputs to the `mix` gadget
 /// * a vector of `k` `AllocatedValue`s that are the outputs to the `mix` gadget,
 ///   such that each output is either zero, or the sum of all of the `Values` of one type.
-pub fn fill_cs<CS: ConstraintSystem>(
+pub fn k_mix<CS: ConstraintSystem>(
     cs: &mut CS,
     inputs: Vec<AllocatedValue>,
 ) -> Result<(Vec<AllocatedValue>, Vec<AllocatedValue>), R1CSError> {
@@ -63,7 +63,7 @@ fn call_mix_gadget<CS: ConstraintSystem>(
         // D = (mix_mid||last_out)[i]
         .zip(mix_mid.iter().chain(iter::once(&last_out)))
     {
-        mix::fill_cs(cs, *A, *B, *C, *D)?
+        mix::mix(cs, *A, *B, *C, *D)?
     }
 
     Ok(())

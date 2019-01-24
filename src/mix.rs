@@ -6,7 +6,7 @@ use value::AllocatedValue;
 /// Enforces that the outputs are either a merge of the inputs :`D = A + B && C = 0`,
 /// or the outputs are equal to the inputs `C = A && D = B`. See spec for more details.
 /// Works for 2 inputs and 2 outputs.
-pub fn fill_cs<CS: ConstraintSystem>(
+pub fn mix<CS: ConstraintSystem>(
     cs: &mut CS,
     A: AllocatedValue,
     B: AllocatedValue,
@@ -101,7 +101,7 @@ mod tests {
             let (C_com, C_var) = C.commit(&mut prover, &mut rng);
             let (D_com, D_var) = D.commit(&mut prover, &mut rng);
 
-            fill_cs(&mut prover, A_var, B_var, C_var, D_var)?;
+            mix(&mut prover, A_var, B_var, C_var, D_var)?;
 
             let proof = prover.prove()?;
             (proof, A_com, B_com, C_com, D_com)
@@ -116,7 +116,7 @@ mod tests {
         let C_var = C_com.commit(&mut verifier);
         let D_var = D_com.commit(&mut verifier);
 
-        fill_cs(&mut verifier, A_var, B_var, C_var, D_var)?;
+        mix(&mut verifier, A_var, B_var, C_var, D_var)?;
 
         Ok(verifier.verify(&proof)?)
     }

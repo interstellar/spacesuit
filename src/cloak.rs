@@ -1,5 +1,5 @@
 use bulletproofs::r1cs::{ConstraintSystem, R1CSError};
-use crate::{merge, range_proof, split};
+use crate::{k_mix::k_mix, range_proof};
 use shuffle::{padded_shuffle, value_shuffle};
 use value::AllocatedValue;
 
@@ -12,10 +12,10 @@ pub fn cloak<CS: ConstraintSystem>(
     outputs: Vec<AllocatedValue>,
 ) -> Result<(), R1CSError> {
     // Merge
-    let (merge_in, merge_out) = merge::fill_cs(cs, inputs.clone())?;
+    let (merge_in, merge_out) = merge(cs, inputs.clone())?;
 
     // Split
-    let (split_out, split_in) = split::fill_cs(cs, outputs.clone())?;
+    let (split_in, split_out) = split(cs, outputs.clone())?;
 
     // Shuffle 1
     // Check that `merge_in` is a valid reordering of `inputs`
@@ -39,4 +39,29 @@ pub fn cloak<CS: ConstraintSystem>(
     }
 
     Ok(())
+}
+
+/// Enforces that the outputs are either a merge of the inputs: `D = A + B && C = 0`,
+/// or the outputs are equal to the inputs `C = A && D = B`. See spec for more details.
+/// Works for `k` inputs and `k` outputs.
+fn merge<CS: ConstraintSystem>(
+    cs: &mut CS,
+    inputs: Vec<AllocatedValue>,
+) -> Result<(Vec<AllocatedValue>, Vec<AllocatedValue>), R1CSError> {
+    k_mix(cs, inputs)
+}
+
+/// Enforces that the outputs are either a split of the inputs :`A = C + D && B = 0`,
+/// or the outputs are equal to the inputs `C = A && D = B`. See spec for more details.
+/// Works for `k` inputs and `k` outputs.
+///
+/// Note: the `split` gadget is the same thing as a `merge` gadget, but "backwards".
+/// This means that if you reverse all of the commitment vectors, and switch the
+/// inputs and outputs of a `merge` gadget, then you have a `split` gadget.
+fn split<CS: ConstraintSystem>(
+    cs: &mut CS,
+    mut inputs: Vec<AllocatedValue>,
+) -> Result<(Vec<AllocatedValue>, Vec<AllocatedValue>), R1CSError> {
+    inputs.reverse();
+    k_mix(cs, inputs).map(|(outs, ins)| (ins, outs))
 }
