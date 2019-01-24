@@ -7,15 +7,13 @@ use merlin::Transcript;
 use rand::{CryptoRng, Rng};
 use value::{CommittedValue, ProverCommittable, Value, VerifierCommittable};
 
-pub struct SpacesuitProof(R1CSProof);
-
 pub fn prove<R: Rng + CryptoRng>(
     bp_gens: &BulletproofGens,
     pc_gens: &PedersenGens,
     inputs: &Vec<Value>,
     outputs: &Vec<Value>,
     rng: &mut R,
-) -> Result<(SpacesuitProof, Vec<CommittedValue>, Vec<CommittedValue>), R1CSError>
+) -> Result<(R1CSProof, Vec<CommittedValue>, Vec<CommittedValue>), R1CSError>
 where
     R: rand::RngCore,
 {
@@ -26,7 +24,7 @@ where
     let (out_com, out_vars) = outputs.commit(&mut prover, rng);
 
     transaction::fill_cs(&mut prover, in_vars, out_vars)?;
-    let proof = SpacesuitProof(prover.prove()?);
+    let proof = prover.prove()?;
 
     Ok((proof, in_com, out_com))
 }
@@ -34,7 +32,7 @@ where
 pub fn verify(
     bp_gens: &BulletproofGens,
     pc_gens: &PedersenGens,
-    proof: &SpacesuitProof,
+    proof: &R1CSProof,
     in_com: &Vec<CommittedValue>,
     out_com: &Vec<CommittedValue>,
 ) -> Result<(), R1CSError> {
@@ -47,5 +45,5 @@ pub fn verify(
 
     assert!(transaction::fill_cs(&mut verifier, in_vars, out_vars,).is_ok());
 
-    Ok(verifier.verify(&proof.0)?)
+    Ok(verifier.verify(&proof)?)
 }
