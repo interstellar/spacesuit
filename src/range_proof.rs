@@ -23,7 +23,11 @@ pub fn range_proof<CS: ConstraintSystem>(
         // Enforce that a = 1 - b, so they both are 1 or 0.
         cs.constrain(a + (b - 1u64));
 
+        // Add `-b_i*2^i` to the linear combination
+        // in order to form the following constraint by the end of the loop:
+        // v = Sum(b_i * 2^i, i = 0..n-1)
         v = v - b * exp_2;
+
         exp_2 = exp_2 + exp_2;
     }
 
