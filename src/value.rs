@@ -2,11 +2,13 @@ use bulletproofs::r1cs::{ConstraintSystem, Prover, R1CSError, Variable, Verifier
 use curve25519_dalek::ristretto::CompressedRistretto;
 use curve25519_dalek::scalar::Scalar;
 use rand::{CryptoRng, Rng};
+use subtle::Choice;
+use subtle::ConditionallySelectable;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct Value {
-    pub q: u64,    // quantity
-    pub f: Scalar, // flavor
+    pub q: SignedInteger, // quantity
+    pub f: Scalar,        // flavor
 }
 
 pub struct CommittedValue {
@@ -27,14 +29,21 @@ pub struct AllocatedValue {
 #[derive(Copy, Clone, Debug)]
 pub struct AllocatedQuantity {
     pub variable: Variable,
-    pub assignment: Option<u64>,
+    pub assignment: Option<SignedInteger>,
+}
+
+/// Represents a signed integer in the range [-(2^64-1) .. 2^64-1]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub enum SignedInteger {
+    Positive(u64),
+    Negative(u64),
 }
 
 impl Value {
     /// Returns a zero quantity with a zero flavor.
     pub fn zero() -> Value {
         Value {
-            q: 0,
+            q: SignedInteger::zero(),
             f: Scalar::zero(),
         }
     }
@@ -86,6 +95,50 @@ impl AllocatedValue {
         match self.assignment {
             Some(value) => value.allocate(cs),
             None => Value::allocate_unassigned(cs),
+        }
+    }
+}
+
+impl SignedInteger {
+    pub fn zero() -> Self {
+        SignedInteger::Positive(0)
+    }
+
+    pub fn abs(&self) -> u64 {
+        match self {
+            SignedInteger::Positive(x) => *x,
+            SignedInteger::Negative(x) => *x,
+        }
+    }
+
+    pub fn sign(&self) -> u8 {
+        match self {
+            SignedInteger::Positive(_) => 1,
+            SignedInteger::Negative(_) => 0,
+        }
+    }
+}
+
+impl From<u64> for SignedInteger {
+    fn from(u: u64) -> SignedInteger {
+        SignedInteger::Positive(u)
+    }
+}
+
+impl Into<Scalar> for SignedInteger {
+    fn into(self) -> Scalar {
+        unimplemented!()
+    }
+}
+
+impl ConditionallySelectable for SignedInteger {
+    fn conditional_select(a: &Self, b: &Self, choice: Choice) -> Self {
+        let val = u64::conditional_select(&a.abs(), &b.abs(), choice);
+        let sign = u8::conditional_select(&a.sign(), &b.sign(), choice);
+        if sign == 0 {
+            SignedInteger::Negative(val)
+        } else {
+            SignedInteger::Positive(val)
         }
     }
 }

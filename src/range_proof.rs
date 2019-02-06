@@ -1,18 +1,21 @@
 use bulletproofs::r1cs::{ConstraintSystem, LinearCombination, R1CSError};
 use curve25519_dalek::scalar::Scalar;
 
+use crate::value::SignedInteger;
+
 /// Enforces that the quantity of v is in the range [0, 2^n).
 pub fn range_proof<CS: ConstraintSystem>(
     cs: &mut CS,
     mut v: LinearCombination,
-    v_assignment: Option<u64>,
+    v_assignment: Option<SignedInteger>,
     n: usize,
 ) -> Result<(), R1CSError> {
     let mut exp_2 = Scalar::one();
     for i in 0..n {
         // Create low-level variables and add them to constraints
         let (a, b, o) = cs.allocate(|| {
-            let q: u64 = v_assignment.ok_or(R1CSError::MissingAssignment)?;
+            // let q: u64 = v_assignment.ok_or(R1CSError::MissingAssignment)?;
+            let q: u64 = v_assignment.ok_or(R1CSError::MissingAssignment)?.abs();
             let bit: u64 = (q >> i) & 1;
             Ok(((1 - bit).into(), bit.into(), Scalar::zero()))
         })?;
@@ -56,13 +59,13 @@ mod tests {
             let (min, max) = (0u64, ((1u128 << n) - 1) as u64);
             let values: Vec<u64> = (0..m).map(|_| rng.gen_range(min, max)).collect();
             for v in values {
-                assert!(range_proof_helper(v, *n).is_ok());
+                assert!(range_proof_helper(SignedInteger::Positive(v), *n).is_ok());
             }
-            assert!(range_proof_helper(max + 1, *n).is_err());
+            assert!(range_proof_helper(SignedInteger::Positive(max + 1), *n).is_err());
         }
     }
 
-    fn range_proof_helper(v_val: u64, n: usize) -> Result<(), R1CSError> {
+    fn range_proof_helper(v_val: SignedInteger, n: usize) -> Result<(), R1CSError> {
         // Common
         let pc_gens = PedersenGens::default();
         let bp_gens = BulletproofGens::new(128, 1);

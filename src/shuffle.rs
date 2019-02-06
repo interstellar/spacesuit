@@ -1,6 +1,6 @@
 use bulletproofs::r1cs::{ConstraintSystem, R1CSError, RandomizedConstraintSystem, Variable};
 use core::cmp::{max, min};
-use value::{AllocatedValue, Value};
+use value::{AllocatedValue, SignedInteger, Value};
 
 /// Enforces that the output variables `y` are a valid reordering of the inputs variables `x`.
 pub fn scalar_shuffle<CS: ConstraintSystem>(
@@ -205,25 +205,25 @@ mod tests {
     // Helper functions to make the tests easier to read
     fn yuan(q: u64) -> Value {
         Value {
-            q,
+            q: SignedInteger::Positive(q),
             f: 888u64.into(),
         }
     }
     fn peso(q: u64) -> Value {
         Value {
-            q,
+            q: SignedInteger::Positive(q),
             f: 666u64.into(),
         }
     }
     fn euro(q: u64) -> Value {
         Value {
-            q,
+            q: SignedInteger::Positive(q),
             f: 444u64.into(),
         }
     }
     fn wrong() -> Value {
         Value {
-            q: 999u64,
+            q: SignedInteger::Positive(999u64),
             f: 222u64.into(),
         }
     }
@@ -364,7 +364,7 @@ mod tests {
             vec![
                 zero(),
                 Value {
-                    q: 1,
+                    q: SignedInteger::Positive(1),
                     f: 0u64.into(),
                 },
                 yuan(4),
