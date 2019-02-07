@@ -9,6 +9,7 @@ extern crate curve25519_dalek;
 use curve25519_dalek::scalar::Scalar;
 
 extern crate rand;
+use rand::seq::SliceRandom;
 use rand::{thread_rng, CryptoRng, Rng};
 
 extern crate spacesuit;
@@ -77,7 +78,7 @@ fn create_spacesuit_proof_helper(n: usize, c: &mut Criterion) {
             .collect();
         let mut outputs = inputs.clone();
         let mut rng = thread_rng();
-        rng.shuffle(&mut outputs);
+        outputs.shuffle(&mut rng);
 
         // Make spacesuit proof
         b.iter(|| {
@@ -123,7 +124,7 @@ fn verify_spacesuit_proof_helper(n: usize, c: &mut Criterion) {
             })
             .collect();
         let mut outputs = inputs.clone();
-        thread_rng().shuffle(&mut outputs);
+        outputs.shuffle(&mut thread_rng());
         let mut rng = thread_rng();
         let (proof, tx_in_com, tx_out_com) =
             prove(&bp_gens, &pc_gens, &inputs, &outputs, &mut rng).unwrap();

@@ -201,7 +201,7 @@ fn combine_by_flavor<CS: ConstraintSystem>(
         // If same_flavor, merge: C.0, C.1, C.2 = 0.
         // Else, move: C = A.
         let mut C = A.clone();
-        C.q.conditional_assign(&SignedInteger::zero(), same_flavor);
+        C.q.conditional_assign(&0u64.into(), same_flavor);
         C.f.conditional_assign(&Scalar::zero(), same_flavor);
         outputs.push(C);
 

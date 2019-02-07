@@ -8,9 +8,7 @@ use bulletproofs::{BulletproofGens, PedersenGens};
 use merlin::Transcript;
 use rand::{CryptoRng, Rng};
 
-use spacesuit::{
-    cloak, CommittedValue, ProverCommittable, SignedInteger, Value, VerifierCommittable,
-};
+use spacesuit::{cloak, CommittedValue, ProverCommittable, Value, VerifierCommittable};
 
 fn spacesuit_helper(
     bp_gens: &BulletproofGens,
@@ -69,19 +67,19 @@ fn verify(
 // Helper functions to make the tests easier to read
 fn yuan(q: u64) -> Value {
     Value {
-        q: SignedInteger::Positive(q),
+        q: q.into(),
         f: 888u64.into(),
     }
 }
 fn peso(q: u64) -> Value {
     Value {
-        q: SignedInteger::Positive(q),
+        q: q.into(),
         f: 666u64.into(),
     }
 }
 fn euro(q: u64) -> Value {
     Value {
-        q: SignedInteger::Positive(q),
+        q: q.into(),
         f: 444u64.into(),
     }
 }

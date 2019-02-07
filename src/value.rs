@@ -2,10 +2,9 @@ use bulletproofs::r1cs::{ConstraintSystem, Prover, R1CSError, Variable, Verifier
 use core::ops::Neg;
 use curve25519_dalek::ristretto::CompressedRistretto;
 use curve25519_dalek::scalar::Scalar;
-use rand::distributions::uniform::{SampleUniform, UniformInt};
 use rand::{CryptoRng, Rng};
 use std::ops::Add;
-use subtle::{Choice, ConditionallyNegatable, ConditionallySelectable};
+use subtle::{Choice, ConditionallySelectable};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct Value {
@@ -34,20 +33,15 @@ pub struct AllocatedQuantity {
     pub assignment: Option<SignedInteger>,
 }
 
-/// Represents a signed integer in the range [-(2^64-1) .. 2^64-1]
-/// Zero value is represented as SignedInteger::Positive(0)
+/// Represents a signed integer with absolute value in the 64-bit range.
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub enum SignedInteger {
-    Positive(u64),
-    Negative(u64),
-    Zero,
-}
+pub struct SignedInteger(i128);
 
 impl Value {
     /// Returns a zero quantity with a zero flavor.
     pub fn zero() -> Value {
         Value {
-            q: SignedInteger::zero(),
+            q: 0u64.into(),
             f: Scalar::zero(),
         }
     }
@@ -104,57 +98,29 @@ impl AllocatedValue {
 }
 
 impl SignedInteger {
-    pub fn zero() -> Self {
-        SignedInteger::Zero
-    }
-
+    // Returns Some(x) if self is non-negative
+    // Otherwise returns None.
     pub fn to_u64(&self) -> Option<u64> {
-        match self {
-            SignedInteger::Positive(x) => Some(*x),
-            SignedInteger::Negative(_) => None,
-            SignedInteger::Zero => Some(0),
+        if self.0 < 0 {
+            None
+        } else {
+            Some(self.0 as u64)
         }
-    }
-
-    fn to_i128(&self) -> i128 {
-        match self {
-            SignedInteger::Positive(x) => (*x).into(),
-            SignedInteger::Negative(x) => -(*x as i128),
-            SignedInteger::Zero => 0,
-        }
-    }
-
-    fn from_i128_unchecked(x: i128) -> Self {
-        let x_is_negative: Choice = (i128::is_negative(x) as u8).into();
-        let mut x_abs = x;
-        x_abs.conditional_negate(x_is_negative);
-        let s = SignedInteger::conditional_select(
-            &SignedInteger::Positive(x_abs as u64),
-            &SignedInteger::Negative(x_abs as u64),
-            x_is_negative,
-        );
-        let x_non_zero: Choice = (x as u8).into();
-        SignedInteger::conditional_select(&SignedInteger::Zero, &s, x_non_zero)
     }
 }
 
 impl From<u64> for SignedInteger {
     fn from(u: u64) -> SignedInteger {
-        let u_non_zero: Choice = (u as u8).into();
-        SignedInteger::conditional_select(
-            &SignedInteger::Zero,
-            &SignedInteger::Positive(u),
-            u_non_zero,
-        )
+        SignedInteger(u as i128)
     }
 }
 
 impl Into<Scalar> for SignedInteger {
     fn into(self) -> Scalar {
-        match self {
-            SignedInteger::Positive(x) => x.into(),
-            SignedInteger::Negative(x) => Scalar::zero() - Scalar::from(x),
-            SignedInteger::Zero => Scalar::zero(),
+        if self.0 < 0 {
+            Scalar::zero() - Scalar::from((-self.0) as u64)
+        } else {
+            Scalar::from(self.0 as u64)
         }
     }
 }
@@ -163,15 +129,13 @@ impl Add for SignedInteger {
     type Output = SignedInteger;
 
     fn add(self, rhs: SignedInteger) -> SignedInteger {
-        let sum = self.to_i128() + rhs.to_i128();
-        SignedInteger::from_i128_unchecked(sum)
+        SignedInteger(self.0 + rhs.0)
     }
 }
 
 impl ConditionallySelectable for SignedInteger {
     fn conditional_select(a: &Self, b: &Self, choice: Choice) -> Self {
-        let val = i128::conditional_select(&a.to_i128(), &b.to_i128(), choice);
-        SignedInteger::from_i128_unchecked(val)
+        SignedInteger(i128::conditional_select(&a.0, &b.0, choice))
     }
 }
 
@@ -179,11 +143,7 @@ impl Neg for SignedInteger {
     type Output = SignedInteger;
 
     fn neg(self) -> SignedInteger {
-        match self {
-            SignedInteger::Positive(x) => SignedInteger::Negative(x),
-            SignedInteger::Negative(x) => SignedInteger::Positive(x),
-            SignedInteger::Zero => SignedInteger::Zero,
-        }
+        SignedInteger(-self.0)
     }
 }
 
