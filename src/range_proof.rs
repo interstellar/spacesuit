@@ -17,6 +17,7 @@ pub fn range_proof<CS: ConstraintSystem>(
             let q: u64 = v_assignment
                 .ok_or(R1CSError::MissingAssignment)?
                 .to_u64()
+                // TBD: change to R1CSError::InvalidAssignment
                 .ok_or(R1CSError::MissingAssignment)?;
             let bit: u64 = (q >> i) & 1;
             Ok(((1 - bit).into(), bit.into(), Scalar::zero()))

@@ -121,9 +121,9 @@ impl SignedInteger {
         }
     }
 
-    fn from_i128(x: i128) -> Self {
+    fn from_i128_unchecked(x: i128) -> Self {
         if i128::is_negative(x) {
-            SignedInteger::Negative(-x as u64)
+            SignedInteger::Negative((-x) as u64)
         } else {
             SignedInteger::Positive(x as u64)
         }
@@ -150,14 +150,14 @@ impl Add for SignedInteger {
 
     fn add(self, rhs: SignedInteger) -> SignedInteger {
         let sum = self.to_i128() + rhs.to_i128();
-        SignedInteger::from_i128(sum)
+        SignedInteger::from_i128_unchecked(sum)
     }
 }
 
 impl ConditionallySelectable for SignedInteger {
     fn conditional_select(a: &Self, b: &Self, choice: Choice) -> Self {
         let val = i128::conditional_select(&a.to_i128(), &b.to_i128(), choice);
-        SignedInteger::from_i128(val)
+        SignedInteger::from_i128_unchecked(val)
     }
 }
 
