@@ -133,8 +133,8 @@ impl SignedInteger {
             &SignedInteger::Negative(x_abs as u64),
             x_is_negative,
         );
-        let x_is_zero: Choice = (x as u8).into();
-        SignedInteger::conditional_select(&SignedInteger::Zero, &s, x_is_zero)
+        let x_non_zero: Choice = (x as u8).into();
+        SignedInteger::conditional_select(&SignedInteger::Zero, &s, x_non_zero)
     }
 }
 
