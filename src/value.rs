@@ -35,6 +35,7 @@ pub struct AllocatedQuantity {
 }
 
 /// Represents a signed integer in the range [-(2^64-1) .. 2^64-1]
+/// Zero value is represented as SignedInteger::Positive(0)
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum SignedInteger {
     Positive(u64),
@@ -113,17 +114,18 @@ impl SignedInteger {
         }
     }
 
-    pub fn sign(&self) -> u8 {
-        match self {
-            SignedInteger::Positive(_) => 1,
-            SignedInteger::Negative(_) => 0,
-        }
-    }
-
     fn to_i128(&self) -> i128 {
         match self {
             SignedInteger::Positive(x) => (*x).into(),
-            SignedInteger::Negative(x) => -1 * i128::from(*x),
+            SignedInteger::Negative(x) => -(*x as i128),
+        }
+    }
+
+    fn from_i128(x: i128) -> Self {
+        if i128::is_negative(x) {
+            SignedInteger::Negative(-x as u64)
+        } else {
+            SignedInteger::Positive(x as u64)
         }
     }
 }
@@ -147,39 +149,15 @@ impl Add for SignedInteger {
     type Output = SignedInteger;
 
     fn add(self, rhs: SignedInteger) -> SignedInteger {
-        match (self, rhs) {
-            (SignedInteger::Positive(l), SignedInteger::Positive(r)) => {
-                SignedInteger::Positive(l + r)
-            }
-            (SignedInteger::Negative(l), SignedInteger::Negative(r)) => {
-                SignedInteger::Negative(l + r)
-            }
-            (SignedInteger::Positive(l), SignedInteger::Negative(r)) => {
-                if l >= r {
-                    SignedInteger::Positive(l - r)
-                } else {
-                    SignedInteger::Negative(r - l)
-                }
-            }
-            (SignedInteger::Negative(l), SignedInteger::Positive(r)) => {
-                if l > r {
-                    SignedInteger::Negative(l - r)
-                } else {
-                    SignedInteger::Positive(r - l)
-                }
-            }
-        }
+        let sum = self.to_i128() + rhs.to_i128();
+        SignedInteger::from_i128(sum)
     }
 }
 
 impl ConditionallySelectable for SignedInteger {
     fn conditional_select(a: &Self, b: &Self, choice: Choice) -> Self {
         let val = i128::conditional_select(&a.to_i128(), &b.to_i128(), choice);
-        if i128::is_negative(val) {
-            SignedInteger::Negative((-1 * val) as u64)
-        } else {
-            SignedInteger::Positive(val as u64)
-        }
+        SignedInteger::from_i128(val)
     }
 }
 

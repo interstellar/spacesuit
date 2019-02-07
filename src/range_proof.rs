@@ -14,7 +14,6 @@ pub fn range_proof<CS: ConstraintSystem>(
     for i in 0..n {
         // Create low-level variables and add them to constraints
         let (a, b, o) = cs.allocate(|| {
-            // let q: u64 = v_assignment.ok_or(R1CSError::MissingAssignment)?;
             let q: u64 = v_assignment
                 .ok_or(R1CSError::MissingAssignment)?
                 .to_u64()
