@@ -163,7 +163,6 @@ fn order_by_flavor<CS: ConstraintSystem>(
             let same_flavor = flav.f.ct_eq(&comp.f);
 
             // If same_flavor, then swap `comp` and `swap`. Else, keep the same.
-            // u64::conditional_swap(&mut swap.q, &mut comp.q, same_flavor);
             SignedInteger::conditional_swap(&mut swap.q, &mut comp.q, same_flavor);
             Scalar::conditional_swap(&mut swap.f, &mut comp.f, same_flavor);
             outputs[i + 1] = swap;
