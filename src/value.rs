@@ -119,6 +119,13 @@ impl SignedInteger {
             SignedInteger::Negative(_) => 0,
         }
     }
+
+    fn to_i128(&self) -> i128 {
+        match self {
+            SignedInteger::Positive(x) => (*x).into(),
+            SignedInteger::Negative(x) => -1 * i128::from(*x),
+        }
+    }
 }
 
 impl From<u64> for SignedInteger {
@@ -132,25 +139,6 @@ impl Into<Scalar> for SignedInteger {
         match self {
             SignedInteger::Positive(x) => x.into(),
             SignedInteger::Negative(x) => Scalar::zero() - Scalar::from(x),
-        }
-    }
-}
-
-impl Into<i128> for SignedInteger {
-    fn into(self) -> i128 {
-        match self {
-            SignedInteger::Positive(x) => x.into(),
-            SignedInteger::Negative(x) => -1 * i128::from(x),
-        }
-    }
-}
-
-impl From<i128> for SignedInteger {
-    fn from(i: i128) -> SignedInteger {
-        if i128::is_negative(i) {
-            SignedInteger::Negative((-1 * i) as u64)
-        } else {
-            SignedInteger::Positive(i as u64)
         }
     }
 }
@@ -186,10 +174,12 @@ impl Add for SignedInteger {
 
 impl ConditionallySelectable for SignedInteger {
     fn conditional_select(a: &Self, b: &Self, choice: Choice) -> Self {
-        let a_i128: i128 = (*a).into();
-        let b_i128: i128 = (*b).into();
-        let val = i128::conditional_select(&a_i128, &b_i128, choice);
-        SignedInteger::from(val)
+        let val = i128::conditional_select(&a.to_i128(), &b.to_i128(), choice);
+        if i128::is_negative(val) {
+            SignedInteger::Negative((-1 * val) as u64)
+        } else {
+            SignedInteger::Positive(val as u64)
+        }
     }
 }
 
