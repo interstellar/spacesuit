@@ -15,7 +15,10 @@ pub fn range_proof<CS: ConstraintSystem>(
         // Create low-level variables and add them to constraints
         let (a, b, o) = cs.allocate(|| {
             // let q: u64 = v_assignment.ok_or(R1CSError::MissingAssignment)?;
-            let q: u64 = v_assignment.ok_or(R1CSError::MissingAssignment)?.abs();
+            let q: u64 = v_assignment
+                .ok_or(R1CSError::MissingAssignment)?
+                .to_u64()
+                .ok_or(R1CSError::MissingAssignment)?;
             let bit: u64 = (q >> i) & 1;
             Ok(((1 - bit).into(), bit.into(), Scalar::zero()))
         })?;
@@ -59,9 +62,9 @@ mod tests {
             let (min, max) = (0u64, ((1u128 << n) - 1) as u64);
             let values: Vec<u64> = (0..m).map(|_| rng.gen_range(min, max)).collect();
             for v in values {
-                assert!(range_proof_helper(SignedInteger::Positive(v), *n).is_ok());
+                assert!(range_proof_helper(v.into(), *n).is_ok());
             }
-            assert!(range_proof_helper(SignedInteger::Positive(max + 1), *n).is_err());
+            assert!(range_proof_helper((max + 1).into(), *n).is_err());
         }
     }
 

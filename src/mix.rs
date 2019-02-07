@@ -250,13 +250,13 @@ mod tests {
     // Helper functions to make the tests easier to read
     fn yuan(q: u64) -> Value {
         Value {
-            q: SignedInteger::Positive(q),
+            q: q.into(),
             f: 888u64.into(),
         }
     }
     fn peso(q: u64) -> Value {
         Value {
-            q: SignedInteger::Positive(q),
+            q: q.into(),
             f: 666u64.into(),
         }
     }
@@ -298,19 +298,19 @@ mod tests {
         let bp_gens = BulletproofGens::new(128, 1);
 
         let A = Value {
-            q: A.0,
+            q: A.0.into(),
             f: A.1.into(),
         };
         let B = Value {
-            q: B.0,
+            q: B.0.into(),
             f: B.1.into(),
         };
         let C = Value {
-            q: C.0,
+            q: C.0.into(),
             f: C.1.into(),
         };
         let D = Value {
-            q: D.0,
+            q: D.0.into(),
             f: D.1.into(),
         };
 
